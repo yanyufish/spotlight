@@ -25,7 +25,7 @@
 					animation: 'pushY',
 					width: '100%',
 					height: 275,
-					html: '<nav data-action="navList" data-args="nav"><ul> {% for item in site.data.navigation %} {% if page.url == item.url or page.url contains item.url %} {% assign class = 'current' %} {% else %} {% assign class = '' %} {% endif %} <li class="link {{ class }}"> <a href="{{ item.url }}">{{ item.name }}</a> </li> {% endfor %} </ul></nav>',
+					html: '{% include nav-mobile.html %}',
 					clickToHide: true,
 					swipeToHide: false,
 					orientation: 'vertical'
@@ -45,7 +45,7 @@
 					animation: 'revealX',
 					width: 250,
 					height: '100%',
-					html: '<nav data-action="navList" data-args="nav"><ul> {% for item in site.data.navigation %} {% if page.url == item.url or page.url contains item.url %} {% assign class = 'current' %} {% else %} {% assign class = '' %} {% endif %} <li class="link {{ class }}"> <a href="{{ item.url }}">{{ item.name }}</a> </li> {% endfor %} </ul></nav>',
+					html: '{% include nav-mobile.html %}',
 					clickToHide: true,
 					orientation: 'vertical'
 				},
@@ -101,7 +101,7 @@
 
 					$banner.scrollwatch({
 						delay:		0,
-						range:		1,
+						range:		0.5,
 						anchor:		'top',
 						on:			function() { $header.addClass('alt reveal'); },
 						off:		function() { $header.removeClass('alt'); }
