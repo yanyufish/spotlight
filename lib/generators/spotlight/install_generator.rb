@@ -118,7 +118,6 @@ module Spotlight
     end
 
     def add_solr_config_resources
-      copy_file 'jetty.rake', 'lib/tasks/jetty.rake'
       directory 'solr_conf'
     end
 
