@@ -106,9 +106,7 @@ describe Spotlight::ApplicationHelper, type: :helper do
 
     it 'generates a twitter card for the exhibit' do
       allow(helper).to receive(:exhibit_root_url).and_return('some/url')
-      allow(current_exhibit).to receive(:thumbnail).and_return(double)
-      allow(current_exhibit).to receive_message_chain(:thumbnail, :image, :thumb, url: '/image')
-
+      allow(current_exhibit).to receive(:thumbnail).and_return(double(id: '7777'))
       helper.add_exhibit_twitter_card_content
 
       card = helper.twitter_card
@@ -116,19 +114,7 @@ describe Spotlight::ApplicationHelper, type: :helper do
       expect(card).to have_css "meta[name='twitter:url'][value='some/url']", visible: false
       expect(card).to have_css "meta[name='twitter:title'][value='#{current_exhibit.title}']", visible: false
       expect(card).to have_css "meta[name='twitter:description'][value='#{current_exhibit.subtitle}']", visible: false
-      expect(card).to have_css "meta[name='twitter:image'][value='http://test.host/image']", visible: false
-    end
-  end
-
-  describe '#carrierwave_url' do
-    it 'turns a application-relative URI into a path' do
-      upload = double(url: '/x/y/z')
-      expect(helper.carrierwave_url(upload)).to eq 'http://test.host/x/y/z'
-    end
-
-    it 'passes a full URI through' do
-      upload = double(url: 'http://some.host/x/y/z')
-      expect(helper.carrierwave_url(upload)).to eq 'http://some.host/x/y/z'
+      expect(card).to have_css "meta[name='twitter:image'][value='/images/7777/full/400,300/0/default.jpg']", visible: false
     end
   end
 

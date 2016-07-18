@@ -25,7 +25,7 @@ describe 'Add and update the site masthead', type: :feature do
     end
   end
 
-  it 'idempotently updates the site masthead options' do
+  it 'idempotently updates the site masthead options', js: true do
     visit spotlight.edit_site_path
 
     click_link 'Site masthead'
@@ -44,7 +44,8 @@ describe 'Add and update the site masthead', type: :feature do
     click_button 'Save changes'
     expect(page).to have_css('.image-masthead .background-container')
   end
-  it 'displays a masthead image when one is uploaded and configured' do
+
+  it 'displays a masthead image when one is uploaded and configured', js: true do
     visit spotlight.edit_site_path
 
     expect(page).to_not have_css('.image-masthead')
@@ -61,6 +62,7 @@ describe 'Add and update the site masthead', type: :feature do
     expect(page).to have_content('The site was successfully updated.')
     expect(page).to have_css('.image-masthead .background-container')
   end
+
   it 'does not display an uploaded masthead if configured to not display' do
     visit spotlight.edit_site_path
 

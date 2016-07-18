@@ -15,17 +15,17 @@ module Spotlight
       "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
     end
 
-    version :large do
-      process resize_to_limit: [850, nil]
-    end
+    # version :large do
+    #   process resize_to_limit: [850, nil]
+    # end
 
-    version :medium do
-      process resize_to_limit: [640, nil]
-    end
+    # version :medium do
+    #   process resize_to_limit: [640, nil]
+    # end
 
-    version :small do
-      process resize_to_limit: [320, nil]
-    end
+    # version :small do
+    #   process resize_to_limit: [320, nil]
+    # end
 
     # Provide a default URL as a default if there hasn't been a file uploaded:
     # def default_url

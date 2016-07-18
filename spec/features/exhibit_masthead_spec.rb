@@ -33,7 +33,8 @@ describe 'Add and update the site masthead', type: :feature do
       expect(field_labeled('Upload an image')).to be_checked
     end
   end
-  it 'displays a masthead image when one is uploaded and configured' do
+
+  it 'displays a masthead image when one is uploaded and configured', js: true do
     visit spotlight.exhibit_dashboard_path(exhibit)
     expect(page).to_not have_css('.image-masthead')
     within '#sidebar' do
@@ -54,6 +55,7 @@ describe 'Add and update the site masthead', type: :feature do
 
     expect(page).to have_css('.image-masthead .background-container')
   end
+
   it 'does not display an uploaded masthead if configured to not display' do
     visit spotlight.exhibit_dashboard_path(exhibit)
     expect(page).to_not have_css('.image-masthead')

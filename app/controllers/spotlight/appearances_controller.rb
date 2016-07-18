@@ -6,6 +6,7 @@ module Spotlight
     load_and_authorize_resource id_param: :exhibit_id, instance_name: 'exhibit', class: 'Spotlight::Exhibit', parent: false
 
     def update
+      puts exhibit_params
       if @exhibit.update(exhibit_params)
         notice = t(:'helpers.submit.spotlight_default.updated', model: @exhibit.class.model_name.human.downcase)
         redirect_to edit_exhibit_appearance_path(@exhibit), notice: notice
@@ -30,12 +31,13 @@ module Spotlight
 
     def featured_image_params
       [
+        :iiif_url,
         :display,
         :source,
         :image,
         :remote_image_url,
         :document_global_id,
-        :image_crop_x, :image_crop_y, :image_crop_w, :image_crop_h
+        # :image_crop_x, :image_crop_y, :image_crop_w, :image_crop_h
       ]
     end
   end

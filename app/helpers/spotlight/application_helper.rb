@@ -4,7 +4,7 @@ module Spotlight
   module ApplicationHelper
     include CrudLinkHelpers
     include TitleHelper
-    include JcropHelper
+    include CropHelper
 
     ##
     # Give the application name a chance to include the exhibit title
@@ -119,20 +119,12 @@ module Spotlight
         card.url exhibit_root_url(current_exhibit)
         card.title current_exhibit.title
         card.description current_exhibit.subtitle
-        card.image carrierwave_url(current_exhibit.thumbnail.image.thumb) if current_exhibit.thumbnail
+        card.image twitter_card_image if current_exhibit.thumbnail
       end
     end
 
-    def carrierwave_url(upload)
-      # Carrierwave's #url returns either a full url (if asset path was configured)
-      # or just the path to the image. We'll try to normalize it to a url.
-      url = upload.url
-
-      if url.nil? || url.starts_with?('http')
-        url
-      else
-        (URI.parse(Rails.application.config.asset_host || root_url) + url).to_s
-      end
+    def twitter_card_image
+      riiif.image_path(current_exhibit.thumbnail.id, size: Spotlight::Engine.config.featured_image_thumb_size.join(','))
     end
 
     def uploaded_field_label(config)
