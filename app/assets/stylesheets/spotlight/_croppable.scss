@@ -6,13 +6,14 @@
 }
 
 $selection-background-color: rgba(255, 255, 255, .1);
+$selection-border-color: #fff;
 $selection-mask-color: rgba(0, 0, 0, .5);
 $drag-node-border: #fff;
 $drag-node-background: #000;
 
 .iiif-crop-selection {
   background-color: $selection-background-color;
-  border: 2px solid #ffffff;
+  border: 2px solid $selection-border-color;
   // The following shadow makes up the
   // "mask" that sits over the rest of
   // the canvas around the selected area.

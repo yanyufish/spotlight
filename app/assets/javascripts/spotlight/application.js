@@ -11,8 +11,6 @@
 // about supported directives.
 //
 //= require jquery
-// I think this is really only needed for phantomjs
-//= require babel-polyfill
 //= require lodash
 //= require sir-trevor
 //= require nestable

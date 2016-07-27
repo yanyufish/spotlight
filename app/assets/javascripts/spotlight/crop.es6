@@ -36,13 +36,12 @@ export default class Crop {
     this.fileUpload.change(() => this.uploadFile());
   }
 
-  // TODO default to 0,0,120,1200)
   // Grab a region from a IIIF url
   getRegionFromIiifUrl(url) {
     var re = /https?:\/\/[^/]*\/[^/]*\/[^/]*\/([^/]*)\//
     var arr = re.exec(url)
     if (arr == null)
-      return
+      return [0, 0, 120, 1200]
     return arr[1].split(',').map((x) => parseInt(x))
   }
 
@@ -61,12 +60,8 @@ export default class Crop {
 
   // Get all the form data with the exception of the _method field.
   getData() {
-    var form = $(this.form[0]);
-    var data = new FormData();
-    for (var field of form.serializeArray()) {
-      if (field.name == '_method') { continue; }
-      data.append(field.name, field.value)
-    }
+    var data = new FormData(this.form[0]);
+    data.append('_method', null);
     return data;
   }
 
