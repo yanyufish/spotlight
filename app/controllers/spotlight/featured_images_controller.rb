@@ -27,6 +27,8 @@ module Spotlight
         image_params(:feature_page)
       elsif params.key? :contact
         image_params(:contact, :avatar_attributes)
+      elsif params.key? :search
+        image_params(:search)
       end
     end
 

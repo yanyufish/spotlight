@@ -10,7 +10,7 @@ module Spotlight
     end
 
     def parent_param
-      params[:site] || params[:exhibit] || params[:exhibit] || {}
+      params[:site] || params[:exhibit] || params[:search] || {}
     end
   end
 end
