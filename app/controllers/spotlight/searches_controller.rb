@@ -81,13 +81,15 @@ module Spotlight
     protected
 
     def update_masthead
-      return unless @search.masthead
+      @search.masthead ||= Spotlight::Masthead.new
       @search.masthead.update(params.require(:search).require(:masthead_attributes).permit(featured_image_params))
+      @search.save
     end
 
     def update_thumbnail
-      return unless @search.thumbnail
+      @search.thumbnail ||= Spotlight::FeaturedImage.new
       @search.thumbnail.update(params.require(:search).require(:thumbnail_attributes).permit(featured_image_params))
+      @search.save
     end
 
     def autocomplete_params

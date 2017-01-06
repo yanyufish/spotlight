@@ -1,30 +1,62 @@
 export default class Crop {
-  constructor(fileUpload) {
-    this.fileUpload = fileUpload;
-    this.form = fileUpload.closest('form');
-    this.setupAsyncUpload();
-    // The input field that stores the IIIF url
-    this.iiif_url_field = $(`#${fileUpload.data('url')}`);
-    // The hidden input field that stores the association between the parent record
-    // and the image.
-    this.association = $(`#${fileUpload.data('association')}`);
-    this.osdSelector = fileUpload.data('selector');
-    if(typeof this.osdSelector === 'undefined')
-      console.error(`required attribute data-selector was not provided on #${fileUpload.attr('id')}`)
+  constructor(cropArea) {
+    this.cropArea = cropArea;
+    this.cropSelector = '[data-cropper="' + cropArea.data('cropper') + '"]';
+    this.iiifUrlField = $('#' + cropArea.data('iiif-url-field'));
+    this.form = cropArea.closest('form');
+    this.initialCropRegion = [0, 0, cropArea.data('crop-width'), cropArea.data('crop-height')];
+    this.tileSource = null;
 
-    this.setupOpenSeadragon(fileUpload.data('tilesource'));
+    this.setupAutoCompletes();
+    this.setupAjaxFileUpload();
+    this.setupExistingIiiifCropper();
     this.setupFormSubmit();
   }
 
-  setupOpenSeadragon(tileSource) {
-    if (tileSource == null)
-      return
+  // Set the Crop tileSource and setup the cropper
+  setTileSource(source) {
+    this.tileSource = source;
+    this.setupIiifCropper();
+  }
+
+  // TODO: Add accessors to update hidden inputs with IIIF uri/ids?
+
+  // Setup autocomplete inputs to have the iiif_cropper context
+  setupAutoCompletes() {
+    var input = $('[data-behavior="autocomplete"]' + this.cropSelector, this.form);
+    input.data('iiifCropper', this);
+  }
+
+  setupAjaxFileUpload() {
+    this.fileInput = $('input[type="file"]' + this.cropSelector, this.form);
+    this.fileInput.change(() => this.uploadFile());
+  }
+
+  // Setup the cropper on page load if the field
+  // that holds the IIIF url is populated
+  setupExistingIiiifCropper() {
+    if(this.iiifUrlField.val() === '') {
+      return;
+    }
+    var partsArr = this.iiifUrlField.val().split('/');
+    var tileSourceBase = partsArr.slice(0, partsArr.length - 4).join('/');
+    this.setTileSource(tileSourceBase + '/info.json');
+  }
+
+  setupIiifCropper() {
+    if (this.tileSource === null || this.tileSource === undefined) {
+      console.error('No tilesource provided when setting up IIIF Cropper');
+      return;
+    }
+    // Open tilesource in existing canvas if present
+    if (this.osdCanvas) {
+      this.osdCanvas.open(this.tileSource);
+      return;
+    }
     this.osdCanvas = new OpenSeadragon({
-       id: this.osdSelector,
-       preserveViewport: true,
+       id: this.cropArea.attr('id'),
        showNavigationControl: false,
-       constrainDuringPan: true,
-       tileSources: [tileSource],
+       tileSources: [this.tileSource],
 
        // disable zooming
        gestureSettingsMouse: {
@@ -45,44 +77,32 @@ export default class Crop {
       this.applyCurrentRegion();
     });
     this.osdCanvas.cropper.lockAspectRatio()
-    xosd = this.osdCanvas; // for debugging, remove.
   }
 
-  setupAsyncUpload() {
-    this.fileUpload.change(() => this.uploadFile());
-  }
 
   // Grab a region from a IIIF url
   getRegionFromIiifUrl(url) {
-    var re = /https?:\/\/[^/]*\/[^/]*\/[^/]*\/([^/]*)\//
-    var arr = re.exec(url)
-    if (arr == null)
-      return this.getDefaultCrop();
-    return arr[1].split(',').map((x) => parseInt(x))
-  }
-
-  getDefaultCrop() {
-    var area = this.fileUpload.data('initial-set-select')
-    if (typeof area !== 'undefined')
-      return area
-    console.warn("unable to find initial-set-select")
-    return [0, 0, 1200, 120]
+    if (url === '') {
+      return this.initialCropRegion;
+    }
+    var partsArr = url.split('/');
+    return partsArr[partsArr.length-4].split(',').map((x) => parseInt(x));
   }
 
   setupFormSubmit(iiif_url_field) {
     this.form.on('submit', (e) => {
-      this.iiif_url_field.val(this.getIiifRegion())
+      this.iiifUrlField.val(this.getIiifRegion());
     });
   }
 
   applyCurrentRegion() {
-    var region = this.getRegionFromIiifUrl(this.iiif_url_field.val());
+    var region = this.getRegionFromIiifUrl(this.iiifUrlField.val());
     this.osdCanvas.cropper.setRegion.apply(this.osdCanvas.cropper, region);
   }
 
   getIiifRegion() {
     if (!this.osdCanvas || !this.osdCanvas.viewport) {
-      return null
+      return null;
     }
     return this.osdCanvas.cropper.getIiifSelection().getUrl('600,');
   }
@@ -95,7 +115,7 @@ export default class Crop {
   }
 
   uploadFile() {
-    var url = this.fileUpload.data('endpoint')
+    var url = this.fileInput.data('endpoint')
     // Every post creates a new image/masthead.
     // Because they create IIIF urls which are heavily cached.
     $.ajax({
@@ -113,12 +133,6 @@ export default class Crop {
   }
 
   successHandler(data, stat, xhr) {
-    // if this is the first image added, setup OSD
-    if (this.osdCanvas) {
-      this.osdCanvas.open(data.tilesource);
-    } else {
-      this.setupOpenSeadragon(data.tilesource)
-    }
-    this.association.val(data.id);
+    this.setTileSource(data.tilesource);
   }
 }

@@ -1,5 +1,5 @@
 Spotlight.onLoad(function() {
-  $('[data-croppable="true"]').croppable();
+  $('[data-behavior="iiif-cropper"]').croppable();
 });
 
 
@@ -15,8 +15,8 @@ var xosd;  // TODO debug -- remove.
 
     var Crop = require('spotlight/crop');
     $(croppables).each(function() {
-      var fileUpload = $(this);
-      new Crop(fileUpload) 
+      var cropElement = $(this);
+      new Crop(cropElement);
     });
 
     return this;

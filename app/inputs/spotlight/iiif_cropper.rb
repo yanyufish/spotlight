@@ -31,8 +31,8 @@ module Spotlight
 
     # Draws just the IIIF URL field and the div for openseadragon
     def text_and_display(image_form)
-      text = image_form.text_field :iiif_url, size: 120
-      text.concat(display)
+      hidden_input = image_form.hidden_field(:iiif_url, id: url_dom_id)
+      hidden_input.concat(display)
     end
 
     # Draws just the file upload field
@@ -45,6 +45,12 @@ module Spotlight
       form.hidden_field foreign_key
     end
 
+    def iiif_hidden_fields(image_form)
+      image_form.hidden_field(:iiif_manifest)
+                .concat(image_form.hidden_field(:iiif_canvas))
+                .concat(image_form.hidden_field(:iiif_image))
+    end
+
     private
 
     # @return the ActionView context
@@ -55,12 +61,8 @@ module Spotlight
     def data_attributes
       {
         endpoint: template.polymorphic_path(model.route_key),
-        tilesource: association.reader.persisted? ? template.riiif.info_url(association.reader.id) : nil,
-        croppable: true,
-        initial_set_select: [0, 0, @width, @height],
-        association: association_dom_id,
-        selector: selector,
-        url: url_dom_id
+        cropper: name,
+        selector: selector
       }
     end
 
@@ -83,8 +85,14 @@ module Spotlight
       "#{base}_#{name}_attributes_iiif_url"
     end
 
-    def display
-      template.content_tag :div, '', id: selector, class: 'osd-container'
+    def display(data = {})
+      template.content_tag :div, '', id: selector, class: 'osd-container', data: data.merge(
+        behavior: 'iiif-cropper',
+        cropper: name,
+        'crop-width': @width,
+        'crop-height': @height,
+        iiif_url_field: url_dom_id
+      )
     end
   end
 end

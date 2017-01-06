@@ -133,6 +133,8 @@ module Spotlight
       OpenStruct.new(field_name: :spotlight_upload_date_tesim, label: 'Date')
     ]
 
+    config.iiif_manifest_field = :iiif_manifest_ss
+
     # Configure the CarrierWave file storage mechanism
     config.uploader_storage = :file
     config.featured_image_thumb_size = [400, 300]

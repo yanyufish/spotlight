@@ -13,7 +13,7 @@ describe 'Add and update the site masthead', type: :feature do
       # attach_file('site_masthead_attributes_image', File.absolute_path(File.join(FIXTURES_PATH, 'avatar.png')))
       # The JS fills in these fields:
       masthead = FactoryGirl.create(:masthead)
-      fill_in 'site_masthead_attributes_iiif_url', with: 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
+      find('#site_masthead_attributes_iiif_url', visible: false).set 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
       find('#site_masthead_id', visible: false).set masthead.id
     end
 
@@ -39,7 +39,7 @@ describe 'Add and update the site masthead', type: :feature do
       # attach_file('site_masthead_attributes_image', File.absolute_path(File.join(FIXTURES_PATH, 'avatar.png')))
       # The JS fills in these fields:
       masthead = FactoryGirl.create(:masthead)
-      fill_in 'site_masthead_attributes_iiif_url', with: 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
+      find('#site_masthead_attributes_iiif_url', visible: false).set 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
       find('#site_masthead_id', visible: false).set masthead.id
     end
 
@@ -65,7 +65,7 @@ describe 'Add and update the site masthead', type: :feature do
 
       # attach_file('site_masthead_attributes_image', File.absolute_path(File.join(FIXTURES_PATH, 'avatar.png')))
       masthead = FactoryGirl.create(:masthead)
-      fill_in 'site_masthead_attributes_iiif_url', with: 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
+      find('#site_masthead_attributes_iiif_url', visible: false).set 'http://test.host/images/7/0,0,100,200/full/0/default.jpg'
       find('#site_masthead_id', visible: false).set masthead.id
     end
 

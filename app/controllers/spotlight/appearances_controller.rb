@@ -28,13 +28,15 @@ module Spotlight
     protected
 
     def update_masthead
-      return unless @exhibit.masthead
+      @exhibit.masthead ||= Spotlight::Masthead.new
       @exhibit.masthead.update(params.require(:exhibit).require(:masthead_attributes).permit(featured_image_params))
+      @exhibit.save
     end
 
     def update_thumbnail
-      return unless @exhibit.thumbnail
+      @exhibit.thumbnail ||= Spotlight::FeaturedImage.new
       @exhibit.thumbnail.update(params.require(:exhibit).require(:thumbnail_attributes).permit(featured_image_params))
+      @exhibit.save
     end
 
     def exhibit_params

@@ -4,7 +4,7 @@ module Spotlight
   class FeaturedImage < ActiveRecord::Base
     mount_uploader :image, Spotlight::FeaturedImageUploader
 
-    before_validation :set_image_from_uploaded_resource
+    # before_validation :set_image_from_uploaded_resource
 
     after_save do
       if image.present?

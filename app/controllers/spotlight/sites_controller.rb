@@ -31,8 +31,9 @@ module Spotlight
     private
 
     def update_masthead
-      return unless @site.masthead
+      @site.masthead ||= Spotlight::Masthead.new
       @site.masthead.update(params.require(:site).require(:masthead_attributes).permit(masthead_params))
+      @site.save
     end
 
     def load_site
