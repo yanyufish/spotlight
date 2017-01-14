@@ -88,6 +88,7 @@ function addImageSelector(input, panel, manifestUrl) {
   if (manifestUrl === undefined) {
     return;
   }
+  var cropper = input.data('iiifCropper');
   $.ajax(manifestUrl).success(
     function(manifest) {
       var thumbs = [];
@@ -104,10 +105,15 @@ function addImageSelector(input, panel, manifestUrl) {
           });
         });
       });
-      panel.show();
-      panel.multiImageSelector(thumbs, function(selectorImage) {
-        input.data('iiifCropper').setTileSource(selectorImage.tilesource);
-      });
+
+      if(thumbs.length == 1) {
+        cropper.setTileSource(thumbs[0].tilesource);
+      } else {
+        panel.show();
+        panel.multiImageSelector(thumbs, function(selectorImage) {
+          cropper.setTileSource(selectorImage.tilesource);
+        });
+      }
     }
   );
 }
