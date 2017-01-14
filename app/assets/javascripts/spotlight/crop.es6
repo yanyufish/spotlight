@@ -101,7 +101,7 @@ export default class Crop {
   }
 
   getIiifRegion() {
-    if (!this.osdCanvas || !this.osdCanvas.viewport) {
+    if (!this.osdCanvas || !this.osdCanvas.viewport || !this.osdCanvas.source) {
       return null;
     }
     return this.osdCanvas.cropper.getIiifSelection().getUrl('600,');

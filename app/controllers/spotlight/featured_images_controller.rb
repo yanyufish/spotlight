@@ -20,17 +20,23 @@ module Spotlight
 
     # The create action can be called from a number of different forms, so
     # we normalize all the parameters.
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def create_params
       if params.key? :exhibit
         image_params(:exhibit)
+      elsif params.key? :about_page
+        image_params(:about_page, :thumbnail)
       elsif params.key? :feature_page
         image_params(:feature_page)
+      elsif params.key? :home_page
+        image_params(:home_page, :thumbnail)
       elsif params.key? :contact
         image_params(:contact, :avatar_attributes)
       elsif params.key? :search
         image_params(:search)
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
     # Params from the avatar/exhibit/feature_page image upload
     def image_params(key, association_key = :thumbnail_attributes)
