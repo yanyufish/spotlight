@@ -111,7 +111,9 @@
           $(".pic.thumbnail img", panel).attr("src", src);
           $("[data-item-grid-thumbnail]", panel).attr('value', src);
           $("[data-item-grid-full-image]", panel).attr('value', $('img', $(this)).data('full-image'));
-          $('[data-panel-image-pagination] [data-current-image]', panel).text(indexOf(currentThumb()));
+          $('[data-panel-image-pagination] [data-current-image]', panel).text(
+            $('li', thumbList).index($(this)) + 1
+          );
           scrollToActiveThumb();
           if (typeof clickCallback === 'function' ) {
             clickCallback(image_versions[i]);
