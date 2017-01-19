@@ -20,7 +20,7 @@
 
         <div role="tabpanel" class="tab-pane" id="site-masthead">
           <p class="instructions"><%= t(:'.site_masthead.help') %></p>
-          <% image_form = iiif_cropper(f, :masthead, 1200, 200) %>
+          <% image_form = iiif_cropper(f, :masthead, 1200, 120) %>
           <%= image_form.hidden_field %>
           <%= f.fields_for(:masthead, @site.masthead || @site.build_masthead) do |m| %>
             <%= render '/spotlight/featured_images/upload_form', f: m, image_form: image_form %>

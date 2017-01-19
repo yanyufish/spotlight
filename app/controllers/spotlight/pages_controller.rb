@@ -119,7 +119,7 @@ module Spotlight
 
     def featured_image_attributes
       [
-        :source, :image, :remote_image_url, :document_global_id, :iiif_url
+        :source, :image, :remote_image_url, :document_global_id, :iiif_region, :iiif_tilesource
         # :image_crop_x, :image_crop_y, :image_crop_w, :image_crop_h
       ]
     end

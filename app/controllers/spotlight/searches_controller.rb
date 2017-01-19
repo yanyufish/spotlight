@@ -128,7 +128,8 @@ module Spotlight
 
     def featured_image_params
       [
-        :iiif_url,
+        :iiif_region,
+        :iiif_tilesource,
         :display,
         :source,
         :image,

@@ -1,8 +1,10 @@
 export default class Crop {
   constructor(cropArea) {
     this.cropArea = cropArea;
+    this.cropArea.data('iiifCropper', this);
     this.cropSelector = '[data-cropper="' + cropArea.data('cropper') + '"]';
     this.iiifUrlField = $('#' + cropArea.data('iiif-url-field'));
+    this.iiifRegionField = $('#' + cropArea.data('iiif-region-field'))
     this.form = cropArea.closest('form');
     this.initialCropRegion = [0, 0, cropArea.data('crop-width'), cropArea.data('crop-height')];
     this.tileSource = null;
@@ -10,12 +12,13 @@ export default class Crop {
     this.setupAutoCompletes();
     this.setupAjaxFileUpload();
     this.setupExistingIiiifCropper();
-    this.setupFormSubmit();
+    this.invalidateMapSizeOnTabToggle();
   }
 
   // Set the Crop tileSource and setup the cropper
   setTileSource(source) {
     this.tileSource = source;
+    this.iiifUrlField.val(source);
     this.setupIiifCropper();
   }
 
@@ -38,9 +41,7 @@ export default class Crop {
     if(this.iiifUrlField.val() === '') {
       return;
     }
-    var partsArr = this.iiifUrlField.val().split('/');
-    var tileSourceBase = partsArr.slice(0, partsArr.length - 4).join('/');
-    this.setTileSource(tileSourceBase + '/info.json');
+    this.setTileSource(this.iiifUrlField.val());
   }
 
   setupIiifCropper() {
@@ -48,63 +49,92 @@ export default class Crop {
       console.error('No tilesource provided when setting up IIIF Cropper');
       return;
     }
-    // Open tilesource in existing canvas if present
-    if (this.osdCanvas) {
-      this.osdCanvas.open(this.tileSource);
+
+    if(this.iiifCropper) {
+      this.iiifCropper.removeLayer(this.iiifLayer);
+      this.iiifLayer = L.tileLayer.iiif(this.tileSource).addTo(this.iiifCropper);
       return;
     }
-    this.osdCanvas = new OpenSeadragon({
-       id: this.cropArea.attr('id'),
-       showNavigationControl: false,
-       tileSources: [this.tileSource],
 
-       // disable zooming
-       gestureSettingsMouse: {
-         clickToZoom: false,
-         scrollToZoom: false
-       },
+    this.iiifCropper = L.map(this.cropArea.attr('id'), {
+      center: [0, 0],
+      crs: L.CRS.Simple,
+      zoom: 0
+    });
+    this.iiifLayer = L.tileLayer.iiif(this.tileSource).addTo(this.iiifCropper);
 
-       // disable panning
-       panHorizontal: false,
-       panVertical: false
-
+    this.iiifCropBox = L.areaSelect({
+      width: this.cropArea.data('crop-width') / 2,
+      height: this.cropArea.data('crop-height') / 2,
+      keepAspectRatio: true
     });
 
-    this.osdCanvas.iiifCrop();
-    this.osdCanvas.addHandler('tile-drawn', () => {
-      // remove the handler so we only fire on the first instance
-      this.osdCanvas.removeHandler('tile-drawn');
-      this.applyCurrentRegion();
+    this.iiifCropBox.addTo(this.iiifCropper);
+
+    this.positionIiiifCropBox();
+
+    var self = this;
+    this.iiifCropBox.on('change', function(){
+      var bounds = this.getBounds();
+      var zoom = self.iiifCropper.getZoom();
+      var min = self.iiifCropper.project(bounds.getSouthWest(), zoom);
+      var max = self.iiifCropper.project(bounds.getNorthEast(), zoom);
+      var imageSize = self.iiifLayer._imageSizes[zoom];
+      var xRatio = self.iiifLayer.x / imageSize.x;
+      var yRatio = self.iiifLayer.y / imageSize.y;
+      var region = [
+        Math.floor(min.x * xRatio),
+        Math.floor(max.y * yRatio),
+        Math.floor((max.x - min.x) * xRatio),
+        Math.floor((min.y - max.y) * yRatio)
+      ];
+      if (self.existingCropBoxSet) {
+        self.iiifRegionField.val(region.join(','));
+      }
     });
-    this.osdCanvas.cropper.lockAspectRatio()
+    this.cropArea.data('initiallyVisible', this.cropArea.is(':visible'));
   }
 
+  positionIiiifCropBox() {
+    var self = this;
+    this.iiifLayer.on('load', function() {
+      if(self.iiifRegionField.val() === '') {
+        self.existingCropBoxSet = true;
+        return;
+      }
+      var maxZoom = self.iiifLayer.maxZoom;
+      var b = self.iiifRegionField.val().split(',');
+      var minPoint = L.point(parseInt(b[0]), parseInt(b[1]));
+      var maxPoint = L.point(parseInt(b[0]) + parseInt(b[2]), parseInt(b[1]) + parseInt(b[3]));
 
-  // Grab a region from a IIIF url
-  getRegionFromIiifUrl(url) {
-    if (url === '') {
-      return this.initialCropRegion;
-    }
-    var partsArr = url.split('/');
-    return partsArr[partsArr.length-4].split(',').map((x) => parseInt(x));
-  }
+      var min = self.iiifCropper.unproject(minPoint, maxZoom);
+      var max = self.iiifCropper.unproject(maxPoint, maxZoom);
 
-  setupFormSubmit(iiif_url_field) {
-    this.form.on('submit', (e) => {
-      this.iiifUrlField.val(this.getIiifRegion());
+      var y = max.lat - min.lat;
+      var x = max.lng - min.lng;
+
+      // Pop a rectangle on there to show where it goes
+      var bounds = L.latLngBounds(min, max);
+      L.rectangle(bounds).addTo(self.iiifCropper);
+      self.iiifCropper.panTo(bounds.getCenter());
+
+      self.iiifCropBox.setDimensions({
+        width: Math.abs(x),
+        height: Math.abs(y)
+      });
+
     });
   }
 
-  applyCurrentRegion() {
-    var region = this.getRegionFromIiifUrl(this.iiifUrlField.val());
-    this.osdCanvas.cropper.setRegion.apply(this.osdCanvas.cropper, region);
-  }
-
-  getIiifRegion() {
-    if (!this.osdCanvas || !this.osdCanvas.viewport || !this.osdCanvas.source) {
-      return null;
-    }
-    return this.osdCanvas.cropper.getIiifSelection().getUrl('600,');
+  invalidateMapSizeOnTabToggle() {
+    var tabs = $('[role="tablist"]', this.form);
+    var self = this;
+    tabs.on('shown.bs.tab', function() {
+      if(self.cropArea.data('initiallyVisible') === false && self.cropArea.is(':visible')) {
+        self.iiifCropper.invalidateSize();
+        self.cropArea.data('initiallyVisible', null);
+      }
+    });
   }
 
   // Get all the form data with the exception of the _method field.

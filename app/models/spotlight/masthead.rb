@@ -17,5 +17,11 @@ module Spotlight
     def remote_image_url=(url)
       super url unless url.starts_with? '/'
     end
+
+    private
+
+    def image_size
+      [1200, 120]
+    end
   end
 end

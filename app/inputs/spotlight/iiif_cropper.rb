@@ -31,7 +31,7 @@ module Spotlight
 
     # Draws just the IIIF URL field and the div for openseadragon
     def text_and_display(image_form)
-      hidden_input = image_form.hidden_field(:iiif_url, id: url_dom_id)
+      hidden_input = image_form.hidden_field(:iiif_tilesource, id: field_dom_id(:iiif_tilesource))
       hidden_input.concat(display)
     end
 
@@ -46,9 +46,10 @@ module Spotlight
     end
 
     def iiif_hidden_fields(image_form)
-      image_form.hidden_field(:iiif_manifest)
-                .concat(image_form.hidden_field(:iiif_canvas))
-                .concat(image_form.hidden_field(:iiif_image))
+      image_form.hidden_field(:iiif_manifest_url)
+                .concat(image_form.hidden_field(:iiif_canvas_id))
+                .concat(image_form.hidden_field(:iiif_image_id))
+                .concat(image_form.hidden_field(:iiif_region, id: field_dom_id(:iiif_region)))
     end
 
     private
@@ -81,17 +82,18 @@ module Spotlight
     end
 
     # Returns the DOM element id that holds the iiif url
-    def url_dom_id
-      "#{base}_#{name}_attributes_iiif_url"
+    def field_dom_id(field_name)
+      "#{base}_#{name}_attributes_#{field_name}"
     end
 
     def display(data = {})
-      template.content_tag :div, '', id: selector, class: 'osd-container', data: data.merge(
+      template.content_tag :div, '', id: selector, data: data.merge(
         behavior: 'iiif-cropper',
         cropper: name,
         'crop-width': @width,
         'crop-height': @height,
-        iiif_url_field: url_dom_id
+        iiif_url_field: field_dom_id(:iiif_tilesource),
+        iiif_region_field: field_dom_id(:iiif_region)
       )
     end
   end

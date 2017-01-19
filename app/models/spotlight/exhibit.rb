@@ -94,6 +94,7 @@ module Spotlight
 
     def set_default_thumbnail
       self.thumbnail ||= searches.first.try(:thumbnail)
+      save if thumbnail.present?
     end
 
     def requested_by

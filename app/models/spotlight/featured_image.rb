@@ -13,6 +13,13 @@ module Spotlight
       end
     end
 
+    after_create :set_tilesource_from_uploaded_resource
+
+    def iiif_url
+      return unless iiif_service_base
+      [iiif_service_base, iiif_region || 'full', image_size.join(','), '0', 'default.jpg'].join('/')
+    end
+
     def remote_image_url=(url)
       # if the image is local, this step will fail..
       # hopefully it's local because it's an uploaded resource, and we'll
@@ -38,9 +45,25 @@ module Spotlight
 
     private
 
+    def set_tilesource_from_uploaded_resource
+      return if iiif_tilesource
+      riiif = Riiif::Engine.routes.url_helpers
+      self.iiif_tilesource = riiif.info_path(id)
+      save
+    end
+
     def set_image_from_uploaded_resource
       return unless document && document.uploaded_resource?
       self.image = document.uploaded_resource.url.file
+    end
+
+    def image_size
+      [120, 120]
+    end
+
+    def iiif_service_base
+      return unless iiif_tilesource
+      iiif_tilesource.sub('/info.json', '')
     end
   end
 end

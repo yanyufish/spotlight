@@ -54,7 +54,8 @@ module Spotlight
       [
         :display,
         # :source,
-        :iiif_url,
+        :iiif_region,
+        :iiif_tilesource
         # :remote_image_url,
         # :document_global_id,
         # :image_crop_x, :image_crop_y, :image_crop_w, :image_crop_h
