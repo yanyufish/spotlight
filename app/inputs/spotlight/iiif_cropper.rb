@@ -49,10 +49,14 @@ module Spotlight
       image_form.hidden_field(:iiif_manifest_url)
                 .concat(image_form.hidden_field(:iiif_canvas_id))
                 .concat(image_form.hidden_field(:iiif_image_id))
-                .concat(image_form.hidden_field(:iiif_region, id: field_dom_id(:iiif_region)))
+                .concat(iiif_region_field(image_form))
     end
 
     private
+
+    def iiif_region_field(image_form)
+      image_form.hidden_field(:iiif_region, id: field_dom_id(:iiif_region))
+    end
 
     # @return the ActionView context
     def template
@@ -60,6 +64,9 @@ module Spotlight
     end
 
     def data_attributes
+      puts "\n\n"
+      puts model.route_key.inspect
+      puts "\n\n"
       {
         endpoint: template.polymorphic_path(model.route_key),
         cropper: name,
@@ -71,6 +78,7 @@ module Spotlight
       nested = nil
       form.fields_for(name) do |image_form|
         nested = upload(image_form).concat(text_and_display(image_form))
+                                   .concat(iiif_region_field(image_form))
       end
       nested
     end

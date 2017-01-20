@@ -58,7 +58,7 @@ module Spotlight
     end
 
     def image_size
-      [120, 120]
+      Spotlight::Engine.config.featured_image_thumb_size
     end
 
     def iiif_service_base

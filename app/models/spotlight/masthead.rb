@@ -21,7 +21,7 @@ module Spotlight
     private
 
     def image_size
-      [1200, 120]
+      [1800, 180]
     end
   end
 end

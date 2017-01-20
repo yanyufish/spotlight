@@ -98,7 +98,8 @@ export default class Crop {
   positionIiiifCropBox() {
     var self = this;
     this.iiifLayer.on('load', function() {
-      if(self.iiifRegionField.val() === '') {
+      var regionFieldValue = self.iiifRegionField.val();
+      if(!regionFieldValue || regionFieldValue === '') {
         self.existingCropBoxSet = true;
         return;
       }
